@@ -43,10 +43,7 @@ def drawTriangle(drawer, x1, y1, x2, y2, color = 'white'):
   drawer.line([(x2, y2), ((x1 + x2) / 2, y1)], fill = color, width = 1)
   drawer.line([((x1 + x2) / 2, y1), (x1, y2)], fill = color, width = 1)
 
-
-
 MAX_IT = 100
-
 MARGIN = 10
 
 image = Image.new('RGB', (WIDTH, HEIGHT))
