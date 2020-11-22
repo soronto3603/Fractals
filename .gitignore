@@ -1,0 +1,7 @@
+.vscode
+env
+*.mp4
+*.png
+images
+__pycache__
+.envrc
