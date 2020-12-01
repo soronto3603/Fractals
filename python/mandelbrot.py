@@ -1,8 +1,13 @@
-import numpy
+from multiprocessing import Pool
+import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
 import os
 
+SIZE = 1024
+ZOOM_DELTA = 0.01
+ITER = 3000
+POINT = (74 / 1000, 499 / 1000)
 
 def mandelbrot(Re, Im, max_iter):
   c = complex(Re, Im)
@@ -12,24 +17,36 @@ def mandelbrot(Re, Im, max_iter):
     if(z.real*z.real + z.imag*z.imag) >= 4:
       return i
   return max_iter
-columns = 1000
-rows = 1000
 
-zoom = 1
-point = (0.3, 0.5)
 
-for i in range(100):
-  print(f'iter{i}')
-  zoom += i * 0.1
-  result = numpy.zeros([rows, columns])
-  for row_index, Re in enumerate(numpy.linspace(-2 + (3 - 3 / zoom) / 4, 1 - (3 - 3 / zoom) * 3 / 4, num=rows)):
-      for column_index, Im in enumerate(numpy.linspace(-1 + (2 - 2 / zoom) * 15 / 32, 1 - (2 - 2 / zoom) * 17 / 32, num=columns)):
+def renderFrame(i, size = SIZE, zoomDelta = ZOOM_DELTA, iter = ITER, point = POINT):
+  print(f'iter{i:0>3d}')
+  zoom = 1 + i * zoomDelta
+  result = np.zeros([size, size])
+  for row_index, Re in enumerate(np.linspace(-2 + 3 * (1 - 1 / zoom) * point[0], 1 - 3 * (1 - 1 / zoom) * (1 - point[0]), num = size)):
+      for column_index, Im in enumerate(np.linspace(-1 + 2 * (1 - 1 / zoom) * point[1], 1 - 2 * (1 - 1 / zoom) * (1 - point[1]), num = size)):
           result[row_index, column_index] = mandelbrot(Re, Im, 100)
 
-  plt.figure(figsize=(columns / 100, rows / 100))
-  plt.axis('off')
-  plt.imshow(result.T, cmap="hot", interpolation="bilinear", extent=[-2, 1, -1, 1])
-  plt.savefig(f'images/mandelbrot{i:03d}.png', bbox_inches='tight')
+  im = Image.fromarray(result.T)
+  im = im.convert('L')
+  im = im.convert('P', palette = Image.ADAPTIVE, colors = 32)
+  im.putpalette([
+    0, 2, 0,
+    255, 170, 0,
+    237, 255, 255,
+    32, 107, 203,
+    0, 7, 100,
+  ])
+  im.save(f'images/mandelbrot{i:0>3d}.png')
 
-os.system('ffmpeg -y -framerate 24 -i images/mandelbrot%03d.png -pix_fmt yuv420p output.mp4')
-os.system('open output.mp4')
+def render(size = SIZE, zoomDelta = ZOOM_DELTA, iter = ITER, point = POINT):
+  with Pool(8) as p:
+    p.map(renderFrame, [i for i in range(iter)])
+
+def toVideo():
+  os.system('ffmpeg -y -framerate 24 -i images/mandelbrot%03d.png -pix_fmt yuv420p output.mp4')
+  os.system('open output.mp4')
+
+if __name__ == '__main__':
+  render()
+  toVideo()
