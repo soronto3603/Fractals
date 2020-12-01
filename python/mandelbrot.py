@@ -21,7 +21,7 @@ def mandelbrot(Re, Im, max_iter):
 
 def renderFrame(i, size = SIZE, zoomDelta = ZOOM_DELTA, iter = ITER, point = POINT):
   print(f'iter{i:0>4d}')
-  zoom = 1 + i * zoomDelta
+  zoom = 1 + i * i * zoomDelta
   result = np.zeros([size, size])
   for row_index, Re in enumerate(np.linspace(-2 + 3 * (1 - 1 / zoom) * point[0], 1 - 3 * (1 - 1 / zoom) * (1 - point[0]), num = size)):
       for column_index, Im in enumerate(np.linspace(-1 + 2 * (1 - 1 / zoom) * point[1], 1 - 2 * (1 - 1 / zoom) * (1 - point[1]), num = size)):
