@@ -20,7 +20,7 @@ def mandelbrot(Re, Im, max_iter):
 
 
 def renderFrame(i, size = SIZE, zoomDelta = ZOOM_DELTA, iter = ITER, point = POINT):
-  print(f'iter{i:0>3d}')
+  print(f'iter{i:0>4d}')
   zoom = 1 + i * zoomDelta
   result = np.zeros([size, size])
   for row_index, Re in enumerate(np.linspace(-2 + 3 * (1 - 1 / zoom) * point[0], 1 - 3 * (1 - 1 / zoom) * (1 - point[0]), num = size)):
@@ -37,14 +37,14 @@ def renderFrame(i, size = SIZE, zoomDelta = ZOOM_DELTA, iter = ITER, point = POI
     32, 107, 203,
     0, 7, 100,
   ])
-  im.save(f'images/mandelbrot{i:0>3d}.png')
+  im.save(f'images/mandelbrot{i:0>4d}.png')
 
 def render(size = SIZE, zoomDelta = ZOOM_DELTA, iter = ITER, point = POINT):
   with Pool(8) as p:
     p.map(renderFrame, [i for i in range(iter)])
 
 def toVideo():
-  os.system('ffmpeg -y -framerate 24 -i images/mandelbrot%03d.png -pix_fmt yuv420p output.mp4')
+  os.system('ffmpeg -y -framerate 24 -i images/mandelbrot%04d.png -pix_fmt yuv420p output.mp4')
   os.system('open output.mp4')
 
 if __name__ == '__main__':
